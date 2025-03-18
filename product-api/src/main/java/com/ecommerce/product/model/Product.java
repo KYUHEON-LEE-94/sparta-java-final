@@ -46,7 +46,7 @@ public class Product {
     Integer stock;
 
     @Setter
-    String category_id;
+    String categoryId;
 
     @Setter
     @Column(name = "deleted_yn", length = 1)
