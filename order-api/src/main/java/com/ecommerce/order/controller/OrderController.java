@@ -1,5 +1,6 @@
 package com.ecommerce.order.controller;
 
+import com.ecommerce.order.dto.OrderResponse;
 import com.ecommerce.order.model.Order;
 import com.ecommerce.order.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,17 +21,17 @@ public class OrderController {
 
     @PostMapping
     @Operation(summary = "주문 생성", description = "새로운 주문을 생성합니다.")
-    public ResponseEntity<String> createOrder(@RequestBody Order order) {
-        Order response = orderService.createOrder(order);
-        log.info("주문 생성: {}", response.getId());
-        return ResponseEntity.ok("Order Created: " + response.getId());
+    public ResponseEntity<OrderResponse> createOrder(@RequestBody Order order) {
+        OrderResponse response = orderService.createOrder(order);
+        log.info("주문 생성: {}", response.getOrderId());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "주문 조회", description = "주문 ID를 이용하여 주문 정보를 조회합니다.")
-    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
-        Order response = orderService.getOrderById(id);
-        log.info("주문 조회: {}", response.getId());
+    public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long id) {
+        OrderResponse response = orderService.getOrderById(id);
+        log.info("주문 조회: {}", response.getOrderId());
         return ResponseEntity.ok(response);
     }
 }

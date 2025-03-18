@@ -1,8 +1,13 @@
 package com.ecommerce.order.service;
 
 import com.ecommerce.order.dto.OrderCreatedEvent;
+import com.ecommerce.order.dto.OrderResponse;
+import com.ecommerce.order.dto.OrderStatus;
 import com.ecommerce.order.model.Order;
 import com.ecommerce.order.repository.OrderRepository;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import javax.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import io.micrometer.core.instrument.Counter;
@@ -15,29 +20,42 @@ import javax.annotation.PostConstruct;
 public class OrderService {
     private final OrderKafkaProducer orderKafkaProducer;
     private final OrderRepository orderRepository;
-    private final MeterRegistry meterRegistry;
-    private Counter orderCounter;
 
-    /*OrderService 객체를 생성한 후, 이 메서드를 실행*/
-    @PostConstruct
-    private void initMetrics() {
-        this.orderCounter = Counter.builder("order.created.count")
-                .description("Number of created orders")
-                .register(meterRegistry);
-    }
+    public OrderResponse createOrder(Order request) {
+        Order order  = orderRepository.save(request);
 
-    public Order createOrder(Order order) {
-        Order savedOrder  = orderRepository.save(order);
-        orderCounter.increment();
 
-        OrderCreatedEvent event = new OrderCreatedEvent(savedOrder.getId(), savedOrder.getUserId(), savedOrder.getProductId(), savedOrder.getQuantity());
+        OrderCreatedEvent event = buildOrderCreatedEvent(order);
         orderKafkaProducer.sendOrderCreatedEvent(event);
 
-        return savedOrder;
+        return buildOrderResponse(order);
     }
 
-    public Order getOrderById(Long id) {
-        return orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+    public OrderResponse getOrderById(Long id) {
+        Order order = orderRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Order not found"));
+        return buildOrderResponse(order);
+    }
+
+    private OrderResponse buildOrderResponse(Order order) {
+        return OrderResponse.builder()
+            .orderId(order.getId())
+            .userId(order.getUserId())
+            .productId(order.getProductId())
+            .shoppingAddress(order.getShoppingAddress())
+            .quantity(order.getQuantity())
+            .totalPrice(order.getTotalPrice())
+            .status(order.getStatus())
+            .createdAt(order.getCreatedAt())
+            .build();
+    }
+
+    private OrderCreatedEvent buildOrderCreatedEvent(Order order) {
+      return OrderCreatedEvent.builder()
+          .orderId(order.getId())
+          .userId(order.getUserId())
+          .productId(order.getProductId())
+          .quantity(order.getQuantity())
+          .build();
     }
 }

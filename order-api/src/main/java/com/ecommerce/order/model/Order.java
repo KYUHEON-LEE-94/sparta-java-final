@@ -34,10 +34,10 @@ public class Order {
     Long id;
 
     @Setter
-    String user_id;
+    String userId;
 
     @Setter
-    String product_id;
+    Long productId;
 
     @Setter
     @Column(nullable = false)
