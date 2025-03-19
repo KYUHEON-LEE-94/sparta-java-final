@@ -12,10 +12,26 @@
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/order-api" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/order-api" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/product-api" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/product-api" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/user-api" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/user-api" />
           </set>
         </option>
       </GradleProjectSettings>

@@ -21,20 +21,34 @@ public class OrderService {
     private final OrderKafkaProducer orderKafkaProducer;
     private final OrderRepository orderRepository;
 
-    public OrderResponse createOrder(Order request) {
-        Order order  = orderRepository.save(request);
+    public OrderResponse createOrder(OrderResponse request) {
+        Order order = buildOrder(request);
 
+        Order orderEntity  = orderRepository.save(order);
 
-        OrderCreatedEvent event = buildOrderCreatedEvent(order);
+        OrderCreatedEvent event = buildOrderCreatedEvent(orderEntity);
         orderKafkaProducer.sendOrderCreatedEvent(event);
 
-        return buildOrderResponse(order);
+        return buildOrderResponse(orderEntity);
     }
+
+
 
     public OrderResponse getOrderById(Long id) {
         Order order = orderRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Order not found"));
         return buildOrderResponse(order);
+    }
+
+    private Order buildOrder(OrderResponse request) {
+        Order order = new Order();
+        order.setUserId(request.getUserId());
+        order.setProductId(request.getProductId());
+        order.setShoppingAddress(request.getShoppingAddress());
+        order.setQuantity(request.getQuantity());
+        order.setTotalPrice(request.getTotalPrice());
+        order.setStatus(request.getStatus());
+        return order;
     }
 
     private OrderResponse buildOrderResponse(Order order) {

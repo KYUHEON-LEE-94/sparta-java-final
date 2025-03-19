@@ -21,7 +21,7 @@ public class OrderController {
 
     @PostMapping
     @Operation(summary = "주문 생성", description = "새로운 주문을 생성합니다.")
-    public ResponseEntity<OrderResponse> createOrder(@RequestBody Order order) {
+    public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderResponse order) {
         OrderResponse response = orderService.createOrder(order);
         log.info("주문 생성: {}", response.getOrderId());
         return ResponseEntity.ok(response);

@@ -32,10 +32,10 @@ RUN mkdir -p /app/logs && chmod -R 777 /app/logs
 
 # 환경 변수 설정
 ENV SPRING_PROFILES_ACTIVE=prod
-ENV SERVER_PORT=8082
+ENV SERVER_PORT=8084
 
 # 포트 노출
-EXPOSE 8082
+EXPOSE 8084
 
 # 실행 명령
-ENTRYPOINT ["java", "-jar", "product-api.jar"]
+ENTRYPOINT ["java", "-jar", "user-api.jar"]
