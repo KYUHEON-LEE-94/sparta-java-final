@@ -25,7 +25,7 @@ FROM openjdk:11-jre-slim
 WORKDIR /app
 
 # 빌드된 JAR 파일 복사
-COPY --from=builder /app/build/libs/*.jar order-api.jar
+COPY --from=builder /app/build/libs/*.jar user-api.jar
 
 # 로그 디렉토리 생성 (권한 문제 방지)
 RUN mkdir -p /app/logs && chmod -R 777 /app/logs

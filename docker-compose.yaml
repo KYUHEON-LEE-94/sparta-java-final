@@ -1,37 +1,4 @@
 services:
-  order-db:
-    image: mysql:8.0
-    environment:
-      MYSQL_DATABASE: orderdb
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_ROOT_HOST: '%'
-    ports:
-      - "3308:3306"
-    volumes:
-      - order-db-data:/var/lib/mysql
-    networks:
-      - elk
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-      interval: 10s
-      retries: 5
-      start_period: 20s
-
-  order-api:
-    build: order-api/.
-    restart: unless-stopped
-    ports:
-      - "8083:8083"
-    depends_on:
-      order-db:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://order-db:3306/orderdb
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: rootpassword
-    networks:
-      - elk
-
   product-db:
     image: mysql:8.0
     environment:
@@ -39,7 +6,7 @@ services:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_ROOT_HOST: '%'
     ports:
-      - "3309:3306"
+      - "3306:3306"
     volumes:
       - product-db-data:/var/lib/mysql
     networks:
@@ -65,7 +32,71 @@ services:
     networks:
       - elk
 
+  order-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: orderdb
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_ROOT_HOST: '%'
+    ports:
+      - "3307:3306"
+    volumes:
+      - order-db-data:/var/lib/mysql
+    networks:
+      - elk
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      retries: 5
+      start_period: 20s
 
+  order-api:
+    build: order-api/.
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    depends_on:
+      order-db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://order-db:3306/orderdb
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: rootpassword
+    networks:
+      - elk
+
+  user-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: userdb
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_ROOT_HOST: '%'
+    ports:
+      - "3308:3306"
+    volumes:
+      - user-db-data:/var/lib/mysql
+    networks:
+      - elk
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      retries: 5
+      start_period: 20s
+
+  user-api:
+    build: user-api/.
+    restart: unless-stopped
+    ports:
+      - "8084:8084"
+    depends_on:
+      user-db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://user-db:3306/userdb
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: rootpassword
+    networks:
+      - elk
 
   elasticsearch:
     build:
@@ -170,6 +201,8 @@ networks:
 
 volumes:
   order-db-data:
+  product-db-data:
+  user-db-data:
   zookeeper_data:
     driver: local
   kafka_data:
