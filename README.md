@@ -1,5 +1,6 @@
-# sparta-java-1-project-week-11
+# sparta-java-project-final
 
+## 아키텍처
 ```text
 ┌──────────────────────────────────────────┐
 │                 Users                    │
