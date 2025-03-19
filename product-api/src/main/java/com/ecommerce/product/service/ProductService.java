@@ -1,6 +1,7 @@
 package com.ecommerce.product.service;
 
 import com.ecommerce.product.dto.DiscountType;
+import com.ecommerce.product.dto.ProductRequest;
 import com.ecommerce.product.dto.ProductResponseDto;
 import com.ecommerce.product.model.Product;
 import com.ecommerce.product.repository.ProductRepository;
@@ -18,10 +19,12 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public ProductResponseDto createProduct(Product request) {
-        Product product = productRepository.save(request);
+    public ProductResponseDto createProduct(ProductRequest request) {
+        Product product = buildProduct(request);
 
-        return buildProductResponseDto(product);
+        Product productEntity = productRepository.save(product);
+
+        return buildProductResponseDto(productEntity);
     }
 
     public ProductResponseDto getProductById(Long id) {
@@ -34,6 +37,17 @@ public class ProductService {
         return productRepository.findAll().stream()
             .map(this::buildProductResponseDto)
             .collect(Collectors.toList());
+    }
+
+    private Product buildProduct(ProductRequest request) {
+        Product product = new Product();
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setDiscountType(request.getDiscountType());
+        product.setDiscountAmount(request.getDiscountAmount());
+        product.setDiscountRate(request.getDiscountRate());
+        return product;
     }
 
     private ProductResponseDto buildProductResponseDto(Product product) {

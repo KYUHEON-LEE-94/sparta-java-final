@@ -32,19 +32,23 @@ public class User {
     @Column(nullable = false, length = 50)
     String username;
 
-    @javax.validation.constraints.Email
+    @Setter
     @Column(nullable = false, unique = true)
     String email;
 
+    @Setter
     @Column(nullable = false)
     String passwordHash;
 
+    @Setter
     @Column(length = 15)
     String phoneNumber;
 
+    @Setter
     @Column(columnDefinition = "TEXT")
     String address;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
     Role role;

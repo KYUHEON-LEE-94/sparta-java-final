@@ -1,7 +1,7 @@
 package com.ecommerce.product.controller;
 
+import com.ecommerce.product.dto.ProductRequest;
 import com.ecommerce.product.dto.ProductResponseDto;
-import com.ecommerce.product.model.Product;
 import com.ecommerce.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,7 +38,7 @@ public class ProductController {
 
     @PostMapping
     @Operation(summary = "상품 생성", description = "새로운 상품을 등록합니다.")
-    public ResponseEntity<ProductResponseDto> createProduct(@RequestBody Product product) {
+    public ResponseEntity<ProductResponseDto> createProduct(@RequestBody ProductRequest product) {
         return ResponseEntity.ok(productService.createProduct(product));
     }
 }

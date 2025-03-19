@@ -20,7 +20,12 @@ public class UserResponse {
   String username;
   String email;
   String phoneNumber;
+  String addres;
+  Role role;
 
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-  private LocalDateTime createdAt;
+  LocalDateTime createdAt;
+
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+  LocalDateTime updatedAt;
 }
