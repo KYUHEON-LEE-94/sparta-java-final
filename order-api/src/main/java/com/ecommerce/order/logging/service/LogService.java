@@ -1,13 +1,14 @@
 package com.ecommerce.order.logging.service;
 
 import com.ecommerce.order.logging.dto.*;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.stereotype.Service;
 
+@Service
+@RequiredArgsConstructor
 public class LogService {
     private static final Logger clickLogger = LoggerFactory.getLogger("USER_CLICK");
     private static final Logger exposeLogger = LoggerFactory.getLogger("USER_EXPOSE");
