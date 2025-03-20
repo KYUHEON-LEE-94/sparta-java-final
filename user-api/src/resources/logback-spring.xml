@@ -1,16 +1,37 @@
 <configuration>
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="USER_CLICK" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/var/logs/api-logs/user_click.log</file>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
-    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-       <destination>logstash:5001</destination>
-<!--        <destination>localhost:5001</destination>-->
+    <appender name="USER_EXPOSE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/var/logs/api-logs/user_expose.log</file>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
-    <root level="info">
-        <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="LOGSTASH"/>
-    </root>
+    <appender name="USER_PURCHASE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/var/logs/api-logs/user_purchase.log</file>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+
+    <appender name="ACCESS_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/var/logs/api-logs/access.log</file>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+
+    <logger name="USER_CLICK" level="INFO" additivity="false">
+        <appender-ref ref="USER_CLICK"/>
+    </logger>
+
+    <logger name="USER_EXPOSE" level="INFO" additivity="false">
+        <appender-ref ref="USER_EXPOSE"/>
+    </logger>
+
+    <logger name="USER_PURCHASE" level="INFO" additivity="false">
+        <appender-ref ref="USER_PURCHASE"/>
+    </logger>
+
+    <logger name="ACCESS_LOG" level="INFO" additivity="false">
+        <appender-ref ref="ACCESS_LOG"/>
+    </logger>
 </configuration>
