@@ -1,6 +1,7 @@
 package com.ecommerce.order.service;
 
 import com.ecommerce.order.dto.OrderCreatedEvent;
+import com.ecommerce.order.logging.service.LogService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -12,6 +13,7 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 @Service
 @RequiredArgsConstructor
 public class OrderKafkaProducer {
+
   private final KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate;
   private static final String TOPIC = "order-created";
 
@@ -26,6 +28,7 @@ public class OrderKafkaProducer {
                 result.getRecordMetadata().partition(),
                 result.getRecordMetadata().offset());
       }
+
 
       @Override
       public void onFailure(Throwable ex) {

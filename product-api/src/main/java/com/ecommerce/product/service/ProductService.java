@@ -1,6 +1,7 @@
 package com.ecommerce.product.service;
 
 import com.ecommerce.product.dto.DiscountType;
+import com.ecommerce.product.dto.OrderCreatedEvent;
 import com.ecommerce.product.dto.ProductRequest;
 import com.ecommerce.product.dto.ProductResponseDto;
 import com.ecommerce.product.model.Product;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +39,20 @@ public class ProductService {
         return productRepository.findAll().stream()
             .map(this::buildProductResponseDto)
             .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void decreaseProduct(OrderCreatedEvent event) {
+        Product product = productRepository.findById(event.getProductId())
+            .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        int remaining = product.getStock() - event.getQuantity();
+        if (remaining < 0) {
+            throw new RuntimeException("재고 부족");
+        }
+        product.setStock(remaining);
+
+        productRepository.save(product);
     }
 
     private Product buildProduct(ProductRequest request) {

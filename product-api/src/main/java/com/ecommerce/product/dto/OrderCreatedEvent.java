@@ -1,4 +1,4 @@
-package com.ecommerce.order.dto;
+package com.ecommerce.product.dto;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
