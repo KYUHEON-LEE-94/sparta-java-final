@@ -16,13 +16,15 @@ public class LogService {
     private static final Logger exposeLogger = LoggerFactory.getLogger("USER_EXPOSE");
     private static final Logger purchaseLogger = LoggerFactory.getLogger("USER_PURCHASE");
     private static final Logger accessLogger = LoggerFactory.getLogger("ACCESS_LOG");
+    private static final Logger logger = LoggerFactory.getLogger("com.ecommerce.order.logging.service.LogService");
+
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private void logEvent(Logger logger, BaseEventDto event) {
         try {
-            System.out.println("logger = " + logger);
-            System.out.println("logger = " + event);
+            logger.info("🔥 파일 로그 찍히나요?");
+            System.out.println("logger.getName() = " + logger.getName());
             logger.info("logger : {}",objectMapper.writeValueAsString(event));
             log.info("slf4j: {}", objectMapper.writeValueAsString(event));
         } catch (Exception e) {
