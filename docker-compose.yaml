@@ -29,6 +29,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://product-db:3306/productdb
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: rootpassword
+    volumes:
+      - ./shared-logs/product-api:/var/logs/api-logs/product-api
     networks:
       - elk
 
@@ -62,41 +64,45 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://order-db:3306/orderdb
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: rootpassword
-    networks:
-      - elk
-
-  user-db:
-    image: mysql:8.0
-    environment:
-      MYSQL_DATABASE: userdb
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_ROOT_HOST: '%'
-    ports:
-      - "3308:3306"
     volumes:
-      - user-db-data:/var/lib/mysql
+      - ./shared-logs/order-api:/var/logs/api-logs/order-api
     networks:
       - elk
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-      interval: 10s
-      retries: 5
-      start_period: 20s
 
-  user-api:
-    build: user-api/.
-    restart: unless-stopped
-    ports:
-      - "8084:8084"
-    depends_on:
-      user-db:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://user-db:3306/userdb
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: rootpassword
-    networks:
-      - elk
+#  user-db:
+#    image: mysql:8.0
+#    environment:
+#      MYSQL_DATABASE: userdb
+#      MYSQL_ROOT_PASSWORD: rootpassword
+#      MYSQL_ROOT_HOST: '%'
+#    ports:
+#      - "3308:3306"
+#    volumes:
+#      - user-db-data:/var/lib/mysql
+#    networks:
+#      - elk
+#    healthcheck:
+#      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+#      interval: 10s
+#      retries: 5
+#      start_period: 20s
+#
+#  user-api:
+#    build: user-api/.
+#    restart: unless-stopped
+#    ports:
+#      - "8084:8084"
+#    depends_on:
+#      user-db:
+#        condition: service_healthy
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:mysql://user-db:3306/userdb
+#      SPRING_DATASOURCE_USERNAME: root
+#      SPRING_DATASOURCE_PASSWORD: rootpassword
+#      volumes:
+#        - ./shared-logs/user-api:/var/logs/api-logs/user-api
+#    networks:
+#      - elk
 
   elasticsearch:
     build:
@@ -124,6 +130,10 @@ services:
       context: "./logstash/"
       dockerfile: Dockerfile
     volumes:
+      - type: bind
+        source: "./logs"
+        target: /var/log/app
+        read_only: true
       - type: bind
         source: "./logstash/config/logstash.yml"
         target: /usr/share/logstash/config/logstash.yml
@@ -202,7 +212,7 @@ networks:
 volumes:
   order-db-data:
   product-db-data:
-  user-db-data:
+#  user-db-data:
   zookeeper_data:
     driver: local
   kafka_data:

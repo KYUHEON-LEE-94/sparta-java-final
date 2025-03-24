@@ -1,37 +1,38 @@
 <configuration>
     <appender name="USER_CLICK" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/logs/api-logs/user_click.log</file>
+        <file>/var/logs/api-logs/order-api/user_click.log</file>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
     <appender name="USER_EXPOSE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/logs/api-logs/user_expose.log</file>
+        <file>/var/logs/api-logs/order-api/user_expose.log</file>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
     <appender name="USER_PURCHASE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/logs/api-logs/user_purchase.log</file>
+        <file>/var/logs/api-logs/order-api/user_purchase.log</file>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
     <appender name="ACCESS_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/logs/api-logs/access.log</file>
+        <file>/var/logs/api-logs/order-api/access.log</file>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
-    <logger name="USER_CLICK" level="INFO" additivity="false">
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.ecommerce.order.logging.service.LogService" level="INFO" additivity="false">
         <appender-ref ref="USER_CLICK"/>
-    </logger>
-
-    <logger name="USER_EXPOSE" level="INFO" additivity="false">
         <appender-ref ref="USER_EXPOSE"/>
-    </logger>
-
-    <logger name="USER_PURCHASE" level="INFO" additivity="false">
         <appender-ref ref="USER_PURCHASE"/>
-    </logger>
-
-    <logger name="ACCESS_LOG" level="INFO" additivity="false">
         <appender-ref ref="ACCESS_LOG"/>
     </logger>
+
+    <root level="INFO">
+        <appender-ref ref="console"/>
+    </root>
 </configuration>

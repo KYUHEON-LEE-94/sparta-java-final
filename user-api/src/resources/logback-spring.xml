@@ -1,21 +1,21 @@
 <configuration>
     <appender name="USER_CLICK" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/logs/api-logs/user_click.log</file>
+        <file>/var/logs/api-logs/user-api/user_click.log</file>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
     <appender name="USER_EXPOSE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/logs/api-logs/user_expose.log</file>
+        <file>/var/logs/api-logs/user-api/user_expose.log</file>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
     <appender name="USER_PURCHASE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/logs/api-logs/user_purchase.log</file>
+        <file>/var/logs/api-logs/user-api/user_purchase.log</file>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
     <appender name="ACCESS_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/logs/api-logs/access.log</file>
+        <file>/var/logs/api-logs/user-api/access.log</file>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 

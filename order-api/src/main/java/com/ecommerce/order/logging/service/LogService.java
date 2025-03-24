@@ -2,11 +2,13 @@ package com.ecommerce.order.logging.service;
 
 import com.ecommerce.order.logging.dto.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LogService {
@@ -19,9 +21,12 @@ public class LogService {
 
     private void logEvent(Logger logger, BaseEventDto event) {
         try {
-            logger.info(objectMapper.writeValueAsString(event));
+            System.out.println("logger = " + logger);
+            System.out.println("logger = " + event);
+            logger.info("logger : {}",objectMapper.writeValueAsString(event));
+            log.info("slf4j: {}", objectMapper.writeValueAsString(event));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
     }
 
