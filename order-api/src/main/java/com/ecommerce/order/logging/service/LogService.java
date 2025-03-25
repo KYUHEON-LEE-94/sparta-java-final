@@ -12,21 +12,19 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class LogService {
-    private static final Logger clickLogger = LoggerFactory.getLogger("USER_CLICK");
-    private static final Logger exposeLogger = LoggerFactory.getLogger("USER_EXPOSE");
-    private static final Logger purchaseLogger = LoggerFactory.getLogger("USER_PURCHASE");
-    private static final Logger accessLogger = LoggerFactory.getLogger("ACCESS_LOG");
-    private static final Logger logger = LoggerFactory.getLogger("com.ecommerce.order.logging.service.LogService");
+    private final Logger clickLogger = LoggerFactory.getLogger("USER_CLICK");
+    private final Logger exposeLogger = LoggerFactory.getLogger("USER_EXPOSE");
+    private final Logger purchaseLogger = LoggerFactory.getLogger("USER_PURCHASE");
+    private final Logger accessLogger = LoggerFactory.getLogger("ACCESS_LOG");
+    private final Logger loggerT = LoggerFactory.getLogger(LogService.class);
 
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private void logEvent(Logger logger, BaseEventDto event) {
         try {
-            logger.info("🔥 파일 로그 찍히나요?");
-            System.out.println("logger.getName() = " + logger.getName());
-            logger.info("logger : {}",objectMapper.writeValueAsString(event));
-            log.info("slf4j: {}", objectMapper.writeValueAsString(event));
+            loggerT.info("🔥 파일 로그 찍히나요?");
+            logger.info("*** logger = {} ***",objectMapper.writeValueAsString(event));
         } catch (Exception e) {
             logger.error(e.getMessage());
         }

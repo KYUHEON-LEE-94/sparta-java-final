@@ -25,10 +25,19 @@
         </encoder>
     </appender>
 
-    <logger name="com.ecommerce.order.logging.service.LogService" level="INFO" additivity="false">
+    <logger name="USER_CLICK" level="INFO" additivity="false">
         <appender-ref ref="USER_CLICK"/>
+    </logger>
+
+    <logger name="USER_EXPOSE" level="INFO" additivity="false">
         <appender-ref ref="USER_EXPOSE"/>
+    </logger>
+
+    <logger name="USER_PURCHASE" level="INFO" additivity="false">
         <appender-ref ref="USER_PURCHASE"/>
+    </logger>
+
+    <logger name="ACCESS_LOG" level="INFO" additivity="false">
         <appender-ref ref="ACCESS_LOG"/>
     </logger>
 

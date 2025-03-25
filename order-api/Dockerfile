@@ -28,7 +28,7 @@ WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar order-api.jar
 
 # 로그 디렉토리 생성 (권한 문제 방지)
-RUN mkdir -p /app/logs && chmod -R 777 /app/logs
+RUN mkdir -p /var/logs/api-logs/order-api && chmod -R 777 /var/logs/api-logs/order-api
 
 # 환경 변수 설정
 ENV SPRING_PROFILES_ACTIVE=prod
