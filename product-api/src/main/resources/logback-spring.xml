@@ -1,22 +1,44 @@
 <configuration>
     <appender name="USER_CLICK" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>/var/logs/api-logs/product-api/user_click.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/var/logs/api-logs/product-api/user_click.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory> <!-- 보관할 일 수 -->
+        </rollingPolicy>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
     <appender name="USER_EXPOSE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>/var/logs/api-logs/product-api/user_expose.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/var/logs/api-logs/product-api/user_expose.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory> <!-- 보관할 일 수 -->
+        </rollingPolicy>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
     <appender name="USER_PURCHASE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>/var/logs/api-logs/product-api/user_purchase.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/var/logs/api-logs/product-api/user_purchase.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory> <!-- 보관할 일 수 -->
+        </rollingPolicy>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
     <appender name="ACCESS_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>/var/logs/api-logs/product-api/access.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/var/logs/api-logs/product-api/access.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory> <!-- 보관할 일 수 -->
+        </rollingPolicy>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
     </appender>
 
     <logger name="USER_CLICK" level="INFO" additivity="false">
@@ -34,4 +56,8 @@
     <logger name="ACCESS_LOG" level="INFO" additivity="false">
         <appender-ref ref="ACCESS_LOG"/>
     </logger>
+
+    <root level="INFO">
+        <appender-ref ref="console"/>
+    </root>
 </configuration>
