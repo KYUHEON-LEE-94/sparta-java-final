@@ -60,6 +60,7 @@ public class ProductService {
         product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
+        product.setStock(request.getStock());
         product.setDiscountType(request.getDiscountType());
         product.setDiscountAmount(request.getDiscountAmount());
         product.setDiscountRate(request.getDiscountRate());

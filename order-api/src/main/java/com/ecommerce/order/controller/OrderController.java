@@ -32,8 +32,15 @@ public class OrderController {
     @GetMapping("/{id}")
     @Operation(summary = "주문 조회", description = "주문 ID를 이용하여 주문 정보를 조회합니다.")
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long id) {
+
+        long start = System.currentTimeMillis();
+
         OrderResponse response = orderService.getOrderById(id);
-        logService.logClickEvent(response.getUserId(), response.getUserId(), "location");
+
+        long end = System.currentTimeMillis();
+        long responseTime = end - start;
+
+        logService.logAccessEvent(response.getUserId(),"GET","/order", 200, responseTime);
         return ResponseEntity.ok(response);
     }
 }

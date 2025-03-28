@@ -38,7 +38,7 @@ public class Product {
     String description;
 
     @Setter
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     BigDecimal price;
 
     @Setter
