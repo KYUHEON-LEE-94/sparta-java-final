@@ -14,11 +14,17 @@ public class OrderKafkaListener {
   private final ProductService productService;
   private static final String TOPIC = "order-created";
 
-  @KafkaListener(topics = TOPIC, groupId = "product-group")
+  @KafkaListener(
+          topics = "order-created",
+          groupId = "product-group",
+          containerFactory = "kafkaListenerContainerFactory"
+  )
   public void handleOrderCreated(OrderCreatedEvent event) {
-    log.info("📦 수신된 Kafka 메시지 - 주문 ID: {}, 상품 ID: {}, 수량: {}",
-        event.getOrderId(), event.getProductId(), event.getQuantity());
-
-    productService.decreaseProduct(event);
+    try {
+      log.info("📦 수신된 Kafka 메시지: {}", event);
+      productService.decreaseProduct(event);
+    } catch (Exception e) {
+      log.error("❌ Kafka 메시지 처리 실패: {}", e.getMessage(), e);
+    }
   }
 }
