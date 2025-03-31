@@ -16,14 +16,14 @@ public class LogService {
     private final Logger exposeLogger = LoggerFactory.getLogger("USER_EXPOSE");
     private final Logger purchaseLogger = LoggerFactory.getLogger("USER_PURCHASE");
     private final Logger accessLogger = LoggerFactory.getLogger("ACCESS_LOG");
-    private final Logger loggerT = LoggerFactory.getLogger(LogService.class);
+    private final Logger consoleLog = LoggerFactory.getLogger(LogService.class);
 
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private void logEvent(Logger logger, BaseEventDto event) {
         try {
-            loggerT.info("🔥 파일 로그 찍히나요?");
+            consoleLog.info("== log Event ==");
             logger.info("*** logger = {} ***",objectMapper.writeValueAsString(event));
         } catch (Exception e) {
             logger.error(e.getMessage());
