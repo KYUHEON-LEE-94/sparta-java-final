@@ -1,5 +1,5 @@
 # 1단계: 빌드
-FROM openjdk:11-jdk-slim as builder
+FROM openjdk:11-jdk-slim AS builder
 WORKDIR /app
 
 # Gradle 빌드 캐시를 활용하기 위해 필요한 파일만 먼저 복사
