@@ -3,11 +3,15 @@ package com.ecommerce.order.service;
 import com.ecommerce.order.dto.OrderCreatedEvent;
 import com.ecommerce.order.dto.OrderResponse;
 import com.ecommerce.order.dto.OrderStatus;
+import com.ecommerce.order.exception.ServiceException;
+import com.ecommerce.order.exception.ServiceExceptionCode;
 import com.ecommerce.order.model.Order;
 import com.ecommerce.order.repository.OrderRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import javax.validation.constraints.NotBlank;
+
+import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import io.micrometer.core.instrument.Counter;
@@ -20,23 +24,37 @@ import javax.annotation.PostConstruct;
 public class OrderService {
     private final OrderKafkaProducer orderKafkaProducer;
     private final OrderRepository orderRepository;
+    private final MeterRegistry meterRegistry;
 
     public OrderResponse createOrder(OrderResponse request) {
-        Order order = buildOrder(request);
+        Timer.Sample sample = Timer.start(meterRegistry);
 
-        Order orderEntity  = orderRepository.save(order);
+        try {
+            Order order = buildOrder(request);
+            Order orderEntity  = orderRepository.save(order);
+            OrderCreatedEvent event = buildOrderCreatedEvent(orderEntity);
+            orderKafkaProducer.sendOrderCreatedEvent(event);
 
-        OrderCreatedEvent event = buildOrderCreatedEvent(orderEntity);
-        orderKafkaProducer.sendOrderCreatedEvent(event);
+            meterRegistry.counter("order_created_total").increment();
+            sample.stop(meterRegistry.timer("order_processing_time"));
 
-        return buildOrderResponse(orderEntity);
+            return buildOrderResponse(orderEntity);
+        } catch (Exception e) {
+            meterRegistry.counter("order_failed_total").increment();
+            throw new ServiceException(ServiceExceptionCode.NOT_FOUND_ORDER);
+        }
     }
 
 
 
     public OrderResponse getOrderById(Long id) {
+        Timer.Sample sample = Timer.start(meterRegistry);
+
         Order order = orderRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        sample.stop(meterRegistry.timer("order_processing_time"));
+
         return buildOrderResponse(order);
     }
 

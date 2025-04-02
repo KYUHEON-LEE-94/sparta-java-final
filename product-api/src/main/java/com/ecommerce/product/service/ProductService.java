@@ -4,12 +4,17 @@ import com.ecommerce.product.dto.DiscountType;
 import com.ecommerce.product.dto.OrderCreatedEvent;
 import com.ecommerce.product.dto.ProductRequest;
 import com.ecommerce.product.dto.ProductResponseDto;
+import com.ecommerce.product.exception.ServiceException;
+import com.ecommerce.product.exception.ServiceExceptionCode;
 import com.ecommerce.product.model.Product;
 import com.ecommerce.product.repository.ProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,39 +25,79 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final MeterRegistry meterRegistry;
 
     public ProductResponseDto createProduct(ProductRequest request) {
-        Product product = buildProduct(request);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            Product product = buildProduct(request);
+            Product productEntity = productRepository.save(product);
 
-        Product productEntity = productRepository.save(product);
+            meterRegistry.counter("product_created_total").increment();
 
-        return buildProductResponseDto(productEntity);
+            return buildProductResponseDto(productEntity);
+        } catch (Exception e) {
+            meterRegistry.counter("product_create_failed_total").increment();
+            throw e;
+        } finally {
+            sample.stop(meterRegistry.timer("product_create_duration"));
+        }
     }
 
     public ProductResponseDto getProductById(Long id) {
-        Product product = productRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Product not found"));
-        return buildProductResponseDto(product);
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            Product product = productRepository.findById(id)
+                    .orElseThrow(() -> {
+                        meterRegistry.counter("product_not_found_total").increment();
+                        return new ServiceException(ServiceExceptionCode.NOT_FOUND_PRODUCT);
+                    });
+
+            meterRegistry.counter("product_view_total").increment();
+
+            return buildProductResponseDto(product);
+        } finally {
+            sample.stop(meterRegistry.timer("product_get_duration"));
+        }
     }
 
     public List<ProductResponseDto> getAllProducts() {
-        return productRepository.findAll().stream()
-            .map(this::buildProductResponseDto)
-            .collect(Collectors.toList());
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            List<Product> products = productRepository.findAll();
+            meterRegistry.counter("product_list_total").increment();
+
+            return products.stream()
+                    .map(this::buildProductResponseDto)
+                    .collect(Collectors.toList());
+        } finally {
+            sample.stop(meterRegistry.timer("product_list_duration"));
+        }
     }
 
     @Transactional
     public void decreaseProduct(OrderCreatedEvent event) {
-        Product product = productRepository.findById(event.getProductId())
-            .orElseThrow(() -> new RuntimeException("Product not found"));
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            Product product = productRepository.findById(event.getProductId())
+                    .orElseThrow(() -> {
+                        meterRegistry.counter("product_not_found_total").increment();
+                        return new ServiceException(ServiceExceptionCode.NOT_FOUND_PRODUCT);
+                    });
 
-        int remaining = product.getStock() - event.getQuantity();
-        if (remaining < 0) {
-            throw new RuntimeException("재고 부족");
+            int remaining = product.getStock() - event.getQuantity();
+            if (remaining < 0) {
+                meterRegistry.counter("product_stock_failed_total").increment();
+                throw new ServiceException(ServiceExceptionCode.OUT_OF_STOCK);
+            }
+
+            product.setStock(remaining);
+            productRepository.save(product);
+
+            meterRegistry.counter("product_stock_decreased_total").increment();
+        } finally {
+            sample.stop(meterRegistry.timer("product_decrease_duration"));
         }
-        product.setStock(remaining);
-
-        productRepository.save(product);
     }
 
     private Product buildProduct(ProductRequest request) {
