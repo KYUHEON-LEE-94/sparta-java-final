@@ -202,12 +202,14 @@ services:
       - elk
 
   zipkin:
-    image: openzipkin/zipkin:latest
+    image: openzipkin/zipkin:2.23
     container_name: zipkin
     ports:
       - "9411:9411"
     networks:
       - elk
+    environment:
+      - JAVA_OPTS=-Djava.net.preferIPv4Stack=true
 
   prometheus:
     image: prom/prometheus:latest
