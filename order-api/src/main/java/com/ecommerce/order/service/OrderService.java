@@ -6,6 +6,7 @@ import com.ecommerce.order.dto.OrderResponse;
 import com.ecommerce.order.dto.OrderStatus;
 import com.ecommerce.order.exception.ServiceException;
 import com.ecommerce.order.exception.ServiceExceptionCode;
+import com.ecommerce.order.metric.annotation.TimedMetric;
 import com.ecommerce.order.model.Order;
 import com.ecommerce.order.repository.OrderRepository;
 import java.math.BigDecimal;
@@ -26,37 +27,21 @@ import javax.annotation.PostConstruct;
 public class OrderService {
     private final OrderKafkaProducer orderKafkaProducer;
     private final OrderRepository orderRepository;
-    private final MeterRegistry meterRegistry;
 
+    @TimedMetric("order_create")
     public OrderResponse createOrder(OrderRequest request) {
-        Timer.Sample sample = Timer.start(meterRegistry);
-
-        try {
-            Order order = buildOrder(request);
-            Order orderEntity  = orderRepository.save(order);
-            OrderCreatedEvent event = buildOrderCreatedEvent(orderEntity);
-            orderKafkaProducer.sendOrderCreatedEvent(event);
-
-            meterRegistry.counter("order_created_total").increment();
-            sample.stop(meterRegistry.timer("order_processing_time"));
-
-            return buildOrderResponse(orderEntity);
-        } catch (Exception e) {
-            meterRegistry.counter("order_failed_total").increment();
-            log.error("Order creation failed: {}", e.getMessage(), e);
-            throw new ServiceException(ServiceExceptionCode.FAIL_CREATE_ORDER);
-        }
+        Order order = buildOrder(request);
+        Order saved = orderRepository.save(order);
+        orderKafkaProducer.sendOrderCreatedEvent(buildOrderCreatedEvent(saved));
+        return buildOrderResponse(saved);
     }
 
 
 
+    @TimedMetric("order_get_by_id")
     public OrderResponse getOrderById(Long id) {
-        Timer.Sample sample = Timer.start(meterRegistry);
-
         Order order = orderRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Order not found"));
-
-        sample.stop(meterRegistry.timer("order_processing_time"));
+            .orElseThrow(() -> new ServiceException(ServiceExceptionCode.NOT_FOUND_ORDER));
 
         return buildOrderResponse(order);
     }
