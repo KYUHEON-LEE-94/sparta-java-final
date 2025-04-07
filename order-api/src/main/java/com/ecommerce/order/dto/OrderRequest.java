@@ -15,7 +15,7 @@ public class OrderRequest {
     @NotBlank
     String userId;
     @NotBlank
-    String productId;
+    Long productId;
     @NotBlank
     String shoppingAddress;
     Integer quantity;

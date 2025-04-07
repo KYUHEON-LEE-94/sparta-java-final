@@ -1,6 +1,7 @@
 package com.ecommerce.order.service;
 
 import com.ecommerce.order.dto.OrderCreatedEvent;
+import com.ecommerce.order.dto.OrderRequest;
 import com.ecommerce.order.dto.OrderResponse;
 import com.ecommerce.order.dto.OrderStatus;
 import com.ecommerce.order.exception.ServiceException;
@@ -13,12 +14,13 @@ import javax.validation.constraints.NotBlank;
 
 import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 
 import javax.annotation.PostConstruct;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -26,7 +28,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final MeterRegistry meterRegistry;
 
-    public OrderResponse createOrder(OrderResponse request) {
+    public OrderResponse createOrder(OrderRequest request) {
         Timer.Sample sample = Timer.start(meterRegistry);
 
         try {
@@ -41,7 +43,8 @@ public class OrderService {
             return buildOrderResponse(orderEntity);
         } catch (Exception e) {
             meterRegistry.counter("order_failed_total").increment();
-            throw new ServiceException(ServiceExceptionCode.NOT_FOUND_ORDER);
+            log.error("Order creation failed: {}", e.getMessage(), e);
+            throw new ServiceException(ServiceExceptionCode.FAIL_CREATE_ORDER);
         }
     }
 
@@ -58,7 +61,7 @@ public class OrderService {
         return buildOrderResponse(order);
     }
 
-    private Order buildOrder(OrderResponse request) {
+    private Order buildOrder(OrderRequest request) {
         Order order = new Order();
         order.setUserId(request.getUserId());
         order.setProductId(request.getProductId());

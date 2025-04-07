@@ -1,5 +1,6 @@
 package com.ecommerce.order.controller;
 
+import com.ecommerce.order.dto.OrderRequest;
 import com.ecommerce.order.dto.OrderResponse;
 import com.ecommerce.order.logging.service.LogService;
 import com.ecommerce.order.model.Order;
@@ -23,7 +24,7 @@ public class OrderController {
 
     @PostMapping
     @Operation(summary = "주문 생성", description = "새로운 주문을 생성합니다.")
-    public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderResponse order) {
+    public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest order) {
         OrderResponse response = orderService.createOrder(order);
         logService.logClickEvent(response.getUserId(), response.getUserId(), "location");
         return ResponseEntity.ok(response);
