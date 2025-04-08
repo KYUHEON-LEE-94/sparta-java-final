@@ -29,6 +29,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://product-db:3306/productdb
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: rootpassword
+
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     volumes:
       - ./shared-logs/product-api:/var/logs/api-logs/product-api
     networks:
@@ -64,6 +67,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://order-db:3306/orderdb
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: rootpassword
+
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     volumes:
       - ./shared-logs/order-api:/var/logs/api-logs/order-api
     networks:
@@ -233,6 +239,24 @@ services:
     volumes:
       - grafana-storage:/var/lib/grafana
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    # 필요에 따라 재시작 정책 설정 가능
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - elk
+    volumes:
+       - redis-data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
 networks:
   elk:
     driver: bridge
@@ -242,7 +266,7 @@ volumes:
   product-db-data:
   user-db-data:
   zookeeper_data:
-    driver: local
   kafka_data:
+  redis-data:
     driver: local
   grafana-storage:

@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final MeterRegistry meterRegistry;
 
     @TimedMetric("product_create")
     public ProductResponseDto createProduct(ProductRequest request) {
