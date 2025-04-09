@@ -29,6 +29,7 @@ public class ProductBatchService {
 
     private final ProductRepository productRepository;
     private final JdbcTemplate jdbcTemplate;
+    private final RedisService redisService;
 
     @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
     private int batchSize;
@@ -145,8 +146,7 @@ public class ProductBatchService {
         }
 
         jdbcTemplate.batchUpdate(sql, batchArgs);
-        log.info("Successfully inserted {} records", batchArgs.size());
-        log.info("query: {} ", sql);
+        redisService.deleteData(RedisKeyUtil.getProductKey("list"));
     }
 
     private void batchUpdateProducts(List<Product> products) {
@@ -167,6 +167,6 @@ public class ProductBatchService {
         }
 
         jdbcTemplate.batchUpdate(sql, batchArgs);
-        log.info("Successfully updated {} records", batchArgs.size());
+        redisService.deleteData(RedisKeyUtil.getProductKey("list"));
     }
 }
