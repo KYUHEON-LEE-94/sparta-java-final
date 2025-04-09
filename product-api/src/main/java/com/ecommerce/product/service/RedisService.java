@@ -44,11 +44,6 @@ public class RedisService {
         redisTemplate.delete(key);
     }
 
-    public void incrementPurchase(String productId) {
-        String key = RedisKeyUtil.getPurchaseKey();
-        redisTemplate.opsForZSet().incrementScore(key, productId, 1);
-    }
-
     public List<String> getTopProducts(String leaderboardType, int topN) {
         String key = RedisKeyUtil.getLeaderboardKey(leaderboardType);
         Set<String> result = redisTemplate.opsForZSet().reverseRange(key, 0, topN - 1);

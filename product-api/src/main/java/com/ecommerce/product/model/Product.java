@@ -5,12 +5,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AccessLevel;
-import lombok.Data;
+
+import lombok.*;
+
 import javax.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
@@ -72,4 +71,13 @@ public class Product {
     @Column(name = "updated_at")
     @UpdateTimestamp
     LocalDateTime updatedAt;
+
+    @Builder
+    public Product(String name, String description, BigDecimal price, Integer stock,Boolean deletedYn) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.stock = stock;
+        this.deletedYn = deletedYn;
+    }
 }

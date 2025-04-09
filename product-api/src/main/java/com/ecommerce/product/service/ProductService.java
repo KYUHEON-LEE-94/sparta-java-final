@@ -35,6 +35,9 @@ public class ProductService {
     public ProductResponseDto createProduct(ProductRequest request) {
         Product product = buildProduct(request);
         Product saved = productRepository.save(product);
+
+        redisService.deleteData(RedisKeyUtil.getProductKey("list"));
+
         return buildProductResponseDto(saved);
     }
 

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class OrderKafkaListener {
+public class ProductKafkaListener {
 
   private final ProductService productService;
   private static final String TOPIC = "order-created";

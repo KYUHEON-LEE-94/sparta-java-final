@@ -3,6 +3,7 @@ package com.ecommerce.product.controller;
 import com.ecommerce.product.dto.ProductRequest;
 import com.ecommerce.product.dto.ProductResponseDto;
 import com.ecommerce.product.logging.service.LogService;
+import com.ecommerce.product.service.ProductBatchService;
 import com.ecommerce.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductController {
 
     private final ProductService productService;
+    private final ProductBatchService productBatchService;
     private final LogService logService;
 
     @GetMapping
@@ -59,5 +61,11 @@ public class ProductController {
         logService.logClickEvent(response.getId(), response.getCategoryId(), "/product/");
 
         return ResponseEntity.ok(productService.createProduct(product));
+    }
+
+    @PostMapping("/batch")
+    public ResponseEntity<Boolean> saveFromCSV(@RequestBody ProductRequest request) {
+        boolean response = productBatchService.saveProductsFromCSV();
+        return ResponseEntity.ok(response);
     }
 }
