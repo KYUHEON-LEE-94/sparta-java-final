@@ -1,4 +1,4 @@
-package com.ecommerce.product;
+package com.ecommerce.product.config;
 
 import com.ecommerce.product.dto.OrderCreatedEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;

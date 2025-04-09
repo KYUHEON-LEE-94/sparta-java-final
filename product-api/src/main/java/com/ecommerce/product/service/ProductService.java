@@ -14,10 +14,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final RedisService redisService;
 
     @TimedMetric("product_create")
     public ProductResponseDto createProduct(ProductRequest request) {
@@ -43,14 +47,26 @@ public class ProductService {
 
     @TimedMetric("product_list")
     public List<ProductResponseDto> getAllProducts() {
-        return productRepository.findAll()
-                .stream()
+        final String CACHE_KEY = RedisKeyUtil.getProductKey("list");
+
+        // 1. Redis 캐시 조회
+        List<ProductResponseDto> cachedList = redisService.findObject(CACHE_KEY, new TypeReference<>() {});
+        if (cachedList != null) {
+            return cachedList;
+        }
+
+        List<ProductResponseDto> productList = productRepository.findAll().stream()
                 .map(this::buildProductResponseDto)
                 .collect(Collectors.toList());
+
+        redisService.setObject(CACHE_KEY, productList, 3000);
+
+        return productList;
     }
 
-    @TimedMetric("product_decrease")
+
     @Transactional
+    @TimedMetric("product_decrease")
     public void decreaseProduct(OrderCreatedEvent event) {
         Product product = productRepository.findById(event.getProductId())
                 .orElseThrow(() -> new ServiceException(ServiceExceptionCode.NOT_FOUND_PRODUCT));
