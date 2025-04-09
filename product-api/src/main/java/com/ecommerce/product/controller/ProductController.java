@@ -13,12 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -64,8 +59,16 @@ public class ProductController {
     }
 
     @PostMapping("/batch")
-    public ResponseEntity<Boolean> saveFromCSV(@RequestBody ProductRequest request) {
+    @Operation(summary = "대량 상품 생성", description = "새로운 상품을 대량으로 등록합니다.")
+    public ResponseEntity<Boolean> saveFromCSV() {
         boolean response = productBatchService.saveProductsFromCSV();
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/batch")
+    @Operation(summary = "대량 상품 업데이트", description = "상품 정보를 대량으로 갱신합니다.")
+    public ResponseEntity<Boolean> updateFromCSV() {
+        boolean response = productBatchService.updateProductsFromCSV();
         return ResponseEntity.ok(response);
     }
 }

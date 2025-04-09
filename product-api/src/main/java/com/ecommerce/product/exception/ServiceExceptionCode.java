@@ -8,7 +8,7 @@ import lombok.ToString;
 public enum ServiceExceptionCode {
     NOT_FOUND_PRODUCT("NOT_FOUND_PRODUCT", "상품을 찾을 수 없습니다."),
     OUT_OF_STOCK("OUT_OF_STOCK", "재고가 부족합니다."),
-
+    ERROR_CSV("ERROR_CSV", "CSV 등록중 에러가 발생했습니다."),
     ;
     private final String code;
     private final String message;
