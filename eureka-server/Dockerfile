@@ -1,8 +1,8 @@
 FROM openjdk:11-jdk-slim
 WORKDIR /app
 
-COPY build/libs/*.jar gateway-service.jar
+COPY build/libs/*.jar eureka-server.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "gateway-service.jar"]
+ENTRYPOINT ["java", "-jar", "eureka-server.jar"]
