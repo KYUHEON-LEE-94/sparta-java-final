@@ -2,12 +2,11 @@ package com.ecommerce.user.service;
 
 import com.ecommerce.user.dto.UserRequest;
 import com.ecommerce.user.dto.UserResponse;
+import com.ecommerce.user.metric.annotation.TimedMetric;
 import com.ecommerce.user.model.User;
 import com.ecommerce.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +14,7 @@ public class UserService {
 
   private final UserRepository userRepository;
 
+  @TimedMetric("user_create")
   public UserResponse create(UserRequest request) {
     User user = buildUser(request);
 
@@ -23,6 +23,7 @@ public class UserService {
     return buildUserResponse(userEntity);
   }
 
+  @TimedMetric("user_get_by_id")
   public UserResponse findUserById(Long id) {
     User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
     return buildUserResponse(user);

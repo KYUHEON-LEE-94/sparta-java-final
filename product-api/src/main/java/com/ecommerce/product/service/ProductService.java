@@ -1,6 +1,5 @@
 package com.ecommerce.product.service;
 
-import com.ecommerce.product.dto.DiscountType;
 import com.ecommerce.product.dto.OrderCreatedEvent;
 import com.ecommerce.product.dto.ProductRequest;
 import com.ecommerce.product.dto.ProductResponseDto;
@@ -9,20 +8,13 @@ import com.ecommerce.product.exception.ServiceExceptionCode;
 import com.ecommerce.product.metric.annotation.TimedMetric;
 import com.ecommerce.product.model.Product;
 import com.ecommerce.product.repository.ProductRepository;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
