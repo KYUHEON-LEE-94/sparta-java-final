@@ -1,0 +1,13 @@
+/order-api/.gradle/*
+/order-api/gradle/*
+
+/product-api/.gradle/*
+/product-api/gradle/*
+
+/user-api/.gradle/*
+/user-api/gradle/*
+
+.idea/
+/user-api/.gradle/buildOutputCleanup/buildOutputCleanup.lock
+/user-api/build/*
+/shared-logs/*
