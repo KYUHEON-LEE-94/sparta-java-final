@@ -1,4 +1,17 @@
 services:
+  eureka-server:
+    build: eureka-server/.
+    restart: unless-stopped
+    ports:
+      - "8761:8761"
+    depends_on:
+      - product-api
+      - order-api
+      - user-api
+      - gateway-service
+    networks:
+      - elk
+
   gateway-service:
     build: gateway-service/.
     restart: unless-stopped
