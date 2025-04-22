@@ -3,6 +3,6 @@ WORKDIR /app
 
 COPY build/libs/*.jar gateway-service.jar
 
-EXPOSE 8080
+EXPOSE 8081
 
 ENTRYPOINT ["java", "-jar", "gateway-service.jar"]
