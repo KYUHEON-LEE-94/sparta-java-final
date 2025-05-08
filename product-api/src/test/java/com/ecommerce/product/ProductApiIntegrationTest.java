@@ -2,11 +2,13 @@ package com.ecommerce.product;
 
 import com.ecommerce.product.dto.ProductRequest;
 import com.ecommerce.product.config.ObjectMapperTestConfig;
+import com.ecommerce.product.service.RedisService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -21,6 +23,8 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.math.BigDecimal;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,10 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(ObjectMapperTestConfig.class)
 public class ProductApiIntegrationTest {
 
-    @Container
-    static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.2.1"));
-
-    @Container
+        @Container
     static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0")
             .withDatabaseName("productdb")
             .withUsername("root")
@@ -42,12 +43,13 @@ public class ProductApiIntegrationTest {
 
     @DynamicPropertySource
     static void registerDataSourceProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
-
         registry.add("spring.datasource.url", mysql::getJdbcUrl);
         registry.add("spring.datasource.username", mysql::getUsername);
         registry.add("spring.datasource.password", mysql::getPassword);
     }
+
+    @MockBean
+    private RedisService redisService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -57,6 +59,9 @@ public class ProductApiIntegrationTest {
 
     @Test
     void createProduct_shouldReturn201() throws Exception {
+
+        doNothing().when(redisService).deleteData(anyString());
+
         ProductRequest request = ProductRequest.builder()
                 .name("test")
                 .description("테스트 상품")
@@ -66,7 +71,7 @@ public class ProductApiIntegrationTest {
 
         String json = objectMapper.writeValueAsString(request);
 
-        mockMvc.perform(post("/products")
+        mockMvc.perform(post("/product")
                         .contentType("application/json")
                         .content(json))
                 .andExpect(status().isCreated());

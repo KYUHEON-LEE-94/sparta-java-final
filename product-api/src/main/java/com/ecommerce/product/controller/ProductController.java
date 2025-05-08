@@ -55,7 +55,7 @@ public class ProductController {
 
         logService.logClickEvent(response.getId(), response.getCategoryId(), "/product/");
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(201).body(response);
     }
 
     @PostMapping("/batch")
