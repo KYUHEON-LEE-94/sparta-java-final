@@ -23,8 +23,10 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.math.BigDecimal;
 
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -75,5 +77,16 @@ public class ProductApiIntegrationTest {
                         .contentType("application/json")
                         .content(json))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    void getProduct_shouldReturn200() throws Exception {
+
+        doNothing().when(redisService).setObject(anyString(),anyString(),anyInt());
+
+        mockMvc.perform(get("/product")
+                        .contentType("application/json")
+                        )
+                .andExpect(status().isOk());
     }
 }
