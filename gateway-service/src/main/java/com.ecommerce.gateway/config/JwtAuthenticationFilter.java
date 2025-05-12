@@ -1,45 +1,78 @@
 package com.ecommerce.gateway.config;
 
-import com.ecommerce.gateway.service.JwtTokenProvider;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.filter.OncePerRequestFilter;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.List;
+import javax.crypto.SecretKey;
 
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final String secretKey = "my-secret-key"; // 보통 외부 설정에서 주입받습니다
 
-    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider) {
-        this.jwtTokenProvider = jwtTokenProvider;
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        ServerHttpRequest request = exchange.getRequest();
+
+        // 1. Authorization 헤더가 없으면 401
+        if (!request.getHeaders().containsKey("Authorization")) {
+            return onError(exchange, "Authorization header is missing", HttpStatus.UNAUTHORIZED);
+        }
+
+        String authHeader = request.getHeaders().getFirst("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return onError(exchange, "Invalid Authorization header format", HttpStatus.UNAUTHORIZED);
+        }
+
+        String token = authHeader.substring(7);
+
+        try {
+            Claims claims = validateToken(token);
+            // 필요하면 claims 에서 사용자 ID, 역할 등을 꺼내어 downstream service 로 전달
+            log.info("JWT is valid. Subject: {}", claims.getSubject());
+        } catch (Exception e) {
+            return onError(exchange, "JWT is invalid: " + e.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
+
+        return chain.filter(exchange); // 통과
+    }
+
+    private Claims validateToken(String token) {
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    private Mono<Void> onError(ServerWebExchange exchange, String errMsg, HttpStatus status) {
+        log.warn("JWT 인증 실패: {}", errMsg);
+        exchange.getResponse().setStatusCode(status);
+        return exchange.getResponse().setComplete();
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-
-        String token = resolveToken(request);
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            String username = jwtTokenProvider.getUsername(token);
-            UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(username, null, List.of());
-            SecurityContextHolder.getContext().setAuthentication(auth);
-        }
-        filterChain.doFilter(request, response);
+    public int getOrder() {
+        return -1; // 높은 우선순위
     }
 
-    private String resolveToken(HttpServletRequest request) {
-        String bearer = request.getHeader("Authorization");
-        if (bearer != null && bearer.startsWith("Bearer ")) {
-            return bearer.substring(7);
-        }
-        return null;
+    private SecretKey getSigningKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }
