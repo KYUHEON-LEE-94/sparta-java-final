@@ -14,7 +14,6 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 
 @SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = com.ecommerce.gateway.GatewayServiceApplication.class
 )
 @AutoConfigureWebTestClient
@@ -23,26 +22,33 @@ public class GatewayApiIntegrationTest {
     @Autowired
     private WebTestClient webTestClient;
 
+    String secretKey = "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE=";
+
     private final String token = Jwts.builder()
             .subject("test-user")
             .issuedAt(new Date())
             .expiration(new Date(System.currentTimeMillis() + 3600000))
-            .signWith(getSigningKey("mySecretKey"))
+            .signWith(getSigningKey(secretKey))
             .compact();
 
     @Test
     void shouldBlockRequestWithoutJwt() {
-        webTestClient.get().uri("http://localhost:8082/product")
+        webTestClient.get().uri("http://localhost:8081/product")
                 .exchange()
                 .expectStatus().isUnauthorized();
     }
 
     @Test
     void shouldAllowRequestWithValidJwt() {
-        webTestClient.get().uri("http://localhost:8082/product")
+        webTestClient = WebTestClient.bindToServer()
+                .baseUrl("http://localhost:8081")
+                .build();
+
+        webTestClient.get()
+                .uri("/product")
                 .header("Authorization", "Bearer " + token)
                 .exchange()
-                .expectStatus().isOk(); // product-service가 잘 연결되어 있어야 200
+                .expectStatus().isOk();
     }
 
     private SecretKey getSigningKey(String secretKey) {

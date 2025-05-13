@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
 
 spring:
   application:
@@ -10,11 +10,11 @@ spring:
         - id: product-api
           uri: http://product-api:8082
           predicates:
-            - Path=/products/**
+            - Path=/product/**
         - id: order-api
           uri: http://order-api:8083
           predicates:
-            - Path=/orders/**
+            - Path=/order/**
         - id: user-api
           uri: http://user-api:8084
           predicates:
@@ -31,4 +31,4 @@ eureka:
       defaultZone: http://eureka-server:8761/eureka/
 
 jwt:
-  secret: my-secret-key-for-jwt
+  secret: MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE=

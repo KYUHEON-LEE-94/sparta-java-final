@@ -1,4 +1,4 @@
-package com.ecommerce.gateway.config;
+package com.ecommerce.gateway.filter;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -6,6 +6,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
 
 @Slf4j
@@ -22,13 +24,13 @@ import javax.crypto.SecretKey;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
-    private final String secretKey = "my-secret-key"; // 보통 외부 설정에서 주입받습니다
+    @Value("${jwt.secret}")
+    private String secretKey;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
 
-        // 1. Authorization 헤더가 없으면 401
         if (!request.getHeaders().containsKey("Authorization")) {
             return onError(exchange, "Authorization header is missing", HttpStatus.UNAUTHORIZED);
         }
@@ -43,7 +45,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
         try {
             Claims claims = validateToken(token);
-            // 필요하면 claims 에서 사용자 ID, 역할 등을 꺼내어 downstream service 로 전달
+
             log.info("JWT is valid. Subject: {}", claims.getSubject());
         } catch (Exception e) {
             return onError(exchange, "JWT is invalid: " + e.getMessage(), HttpStatus.UNAUTHORIZED);
